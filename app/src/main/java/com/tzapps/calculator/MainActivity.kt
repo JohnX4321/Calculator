@@ -1,14 +1,20 @@
 package com.tzapps.calculator
 
 import android.os.Bundle
-import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.mikepenz.aboutlibraries.LibsBuilder
+import com.tzapps.calculator.db.Record
+import com.tzapps.calculator.db.RecordDao
+import com.tzapps.calculator.db.RecordsDatabase
 import com.udojava.evalex.Expression
+import kotlinx.coroutines.*
 import java.math.BigDecimal
 
 //TODO custom parser
@@ -36,8 +42,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnEight: AppCompatButton
     private lateinit var btnNine: AppCompatButton
     private lateinit var btnZero: AppCompatButton
-    private lateinit var moreBtn: AppCompatImageButton
-    private lateinit var clearBtn: AppCompatImageButton
+    private lateinit var backspaceBtn: AppCompatImageButton
+    private lateinit var historyBtn: AppCompatImageButton
+    private lateinit var clearBtn: AppCompatButton
     private lateinit var pcBtn: AppCompatButton
     private lateinit var parenthesisBtn: AppCompatButton
     private lateinit var multiplyBtn: AppCompatButton
@@ -46,10 +53,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var minusBtn: AppCompatButton
     private lateinit var dotBtn: AppCompatButton
     private lateinit var solveBtn: AppCompatButton
-    private lateinit var plusMinusBtn: AppCompatButton
+    private lateinit var moreBtn: AppCompatImageButton
 
     private lateinit var expressionTextView: TextView
     private lateinit var resultTextView: TextView
+    private lateinit var recordsDB: RecordDao
+    private var recordsList = emptyList<Record>()
+    private lateinit var adapter: HistoryAdapter
+
+    private var lastExpCache = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +79,6 @@ class MainActivity : AppCompatActivity() {
         btnEight=findViewById(R.id.btnEight)
         btnNine=findViewById(R.id.btnNine)
         btnZero=findViewById(R.id.btnZero)
-        moreBtn=findViewById(R.id.btnMenu)
         clearBtn=findViewById(R.id.btnClear)
         pcBtn=findViewById(R.id.btnModulus)
         parenthesisBtn=findViewById(R.id.btnParenthesis)
@@ -77,7 +88,9 @@ class MainActivity : AppCompatActivity() {
         minusBtn=findViewById(R.id.btnSubtract)
         dotBtn=findViewById(R.id.btnDot)
         solveBtn=findViewById(R.id.btnEquals)
-        plusMinusBtn=findViewById(R.id.btnInvertNumber)
+        historyBtn=findViewById(R.id.history)
+        backspaceBtn=findViewById(R.id.backSpace)
+        addNumber("0")
 
         btnZero.setOnClickListener {
             addNumber("0")
@@ -130,22 +143,44 @@ class MainActivity : AppCompatActivity() {
         parenthesisBtn.setOnClickListener {
             addParenthesis()
         }
-        plusMinusBtn.setOnClickListener {
-            if (expressionTextView.text.isNotEmpty()&&lastCharacter(expressionTextView.text.toString())==IS_OPERAND){
-                parenthesisBtn.performClick()
-                minusBtn.performClick()
+
+        historyBtn.setOnClickListener {
+            val historyDialog = BottomSheetDialog(this,BottomSheetBehavior.STATE_EXPANDED).apply {
+                fetchHistory()
+                setContentView(R.layout.fragment_history)
+                val recyclerView: RecyclerView = findViewById(R.id.historyRV)!!
+                adapter = HistoryAdapter(recordsList)
+                recyclerView.layoutManager= LinearLayoutManager(this@MainActivity)
+                recyclerView.adapter=adapter
+                recyclerView.addItemDecoration(
+                    DividerItemDecoration(this@MainActivity,
+                        DividerItemDecoration.VERTICAL)
+                )
+                recyclerView.setHasFixedSize(true)
+                findViewById<AppCompatButton>(R.id.historyClearBtn)!!.setOnClickListener {
+                    recordsList= emptyList()
+                    if (::adapter.isInitialized)
+                        adapter.recordsList=recordsList
+                    CoroutineScope(Dispatchers.IO).launch {
+                        recordsDB.deleteAll()
+                    }
+                    adapter.notifyDataSetChanged()
+                }
             }
+            historyDialog.show()
         }
 
-        moreBtn.setOnClickListener {
-            BottomSheetDialog(it.context).apply {
-                setContentView(R.layout.layout_bottomsheet)
-                findViewById<AppCompatButton>(R.id.aboutLibs)?.setOnClickListener {
-                    LibsBuilder().start(context)
-                    this.dismiss()
-                }
-            }.show()
+        backspaceBtn.setOnClickListener {
+            if (expressionTextView.text.isNullOrEmpty()||expressionTextView.text=="0") return@setOnClickListener
+            if (expressionTextView.text.length==1) {
+                expressionTextView.text = "0"
+                return@setOnClickListener
+            }
+            expressionTextView.text=expressionTextView.text.toString().substring(0,expressionTextView.text.lastIndex)
         }
+
+        recordsDB= RecordsDatabase(this).recordsDao()
+        fetchHistory()
 
         clearBtn.setOnClickListener {
             expressionTextView.text=""
@@ -155,10 +190,26 @@ class MainActivity : AppCompatActivity() {
             isSolve=false
         }
         solveBtn.setOnClickListener {
-            if (!expressionTextView.text.toString().isNullOrEmpty())
+            val expLocal = expressionTextView.text.toString()
+            if (expLocal==lastExpCache)
+                return@setOnClickListener
+            if (expLocal.isNotEmpty()) {
                 solve(expressionTextView.text.toString())
+                fetchHistory()
+            }
         }
 
+    }
+
+
+    private fun fetchHistory() {
+        CoroutineScope(Dispatchers.Main).launch {
+            recordsList = recordsDB.getAll()
+            if (::adapter.isInitialized) {
+                adapter.recordsList = recordsList
+                adapter.notifyDataSetChanged()
+            }
+        }
     }
 
     private fun addNumber(number: String) {
@@ -268,9 +319,7 @@ class MainActivity : AppCompatActivity() {
             if (isSolve)
                 temp=input+endExpression
             else saveLastExpression(input)
-            Log.d("Input",temp)
             res=Expression(temp).setPrecision(12).eval(true)
-            Log.d("Result",res.toString())
             isSolve=true
             resultText=res!!.toPlainString()//.setScale(8,BigDecimal.ROUND_HALF_UP).toPlainString()
         } catch (e: Exception) {
@@ -282,6 +331,15 @@ class MainActivity : AppCompatActivity() {
             resultText=resultText.replace("\\.?0*$","")
         }
         resultTextView.text=resultText
+        CoroutineScope(Dispatchers.IO).launch {
+            if (recordsDB.countAll()==20) {
+                val tmpR = recordsDB.getAll()[0]
+                recordsDB.delete(tmpR)
+            }
+            recordsDB.insert(Record(exprName = expressionTextView.text.toString(),exp = resultText))
+        }
+        lastExpCache = input
+
     }
 
     private fun lastCharacter(last: String): Int {

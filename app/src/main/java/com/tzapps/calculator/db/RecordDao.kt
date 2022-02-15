@@ -5,19 +5,19 @@ import androidx.room.*
 @Dao
 interface RecordDao {
 
-    @Query("SELECT * FROM records")
-    fun getAll(): List<Record>
+    @Query("SELECT * FROM records ORDER BY id DESC")
+    suspend fun getAll(): List<Record>
 
     @Insert
-    fun insert(record: Record)
+    suspend fun insert(record: Record)
 
     @Delete
-    fun delete(record: Record)
+    suspend fun delete(record: Record)
 
     @Query("DELETE FROM records")
-    fun deleteAll()
+    suspend fun deleteAll()
 
     @Query("SELECT COUNT(*) FROM records")
-    fun countAll(): Int
+    suspend fun countAll(): Int
 
 }

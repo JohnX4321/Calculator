@@ -7,8 +7,8 @@ import java.io.Serializable
 
 @Entity(tableName = "records")
 data class Record(
-    @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    @PrimaryKey(autoGenerate = true) @ColumnInfo(name = "id")
+    var id: Long=System.currentTimeMillis(),
     @ColumnInfo(name = "name")
     var exprName: String,
     @ColumnInfo(name = "expr")
