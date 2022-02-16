@@ -1,6 +1,12 @@
 package com.tzapps.calculator
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.method.ScrollingMovementMethod
+import android.view.View
+import android.widget.HorizontalScrollView
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
@@ -16,6 +22,8 @@ import com.tzapps.calculator.db.RecordsDatabase
 import com.udojava.evalex.Expression
 import kotlinx.coroutines.*
 import java.math.BigDecimal
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
 //TODO custom parser
 class MainActivity : AppCompatActivity() {
@@ -42,7 +50,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnEight: AppCompatButton
     private lateinit var btnNine: AppCompatButton
     private lateinit var btnZero: AppCompatButton
-    private lateinit var backspaceBtn: AppCompatImageButton
+    private lateinit var backspaceBtn: AppCompatButton
     private lateinit var historyBtn: AppCompatImageButton
     private lateinit var clearBtn: AppCompatButton
     private lateinit var pcBtn: AppCompatButton
@@ -54,6 +62,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dotBtn: AppCompatButton
     private lateinit var solveBtn: AppCompatButton
     private lateinit var moreBtn: AppCompatImageButton
+    private lateinit var scrollView: HorizontalScrollView
 
     private lateinit var expressionTextView: TextView
     private lateinit var resultTextView: TextView
@@ -90,6 +99,7 @@ class MainActivity : AppCompatActivity() {
         solveBtn=findViewById(R.id.btnEquals)
         historyBtn=findViewById(R.id.history)
         backspaceBtn=findViewById(R.id.backSpace)
+        scrollView=findViewById(R.id.scrollView)
         addNumber("0")
 
         btnZero.setOnClickListener {
@@ -97,6 +107,7 @@ class MainActivity : AppCompatActivity() {
         }
         btnOne.setOnClickListener {
             addNumber("1")
+            scrollExpressionViewToRight()
         }
         btnTwo.setOnClickListener {
             addNumber("2")
@@ -145,9 +156,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         historyBtn.setOnClickListener {
-            val historyDialog = BottomSheetDialog(this,BottomSheetBehavior.STATE_EXPANDED).apply {
+            val historyDialog = BottomSheetDialog(this,BottomSheetBehavior.PEEK_HEIGHT_AUTO).apply {
                 fetchHistory()
-                setContentView(R.layout.fragment_history)
+                setContentView(R.layout.dialog_history)
                 val recyclerView: RecyclerView = findViewById(R.id.historyRV)!!
                 adapter = HistoryAdapter(recordsList)
                 recyclerView.layoutManager= LinearLayoutManager(this@MainActivity)
@@ -201,6 +212,12 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    private fun scrollExpressionViewToRight() {
+        Handler(Looper.getMainLooper()).post {
+            scrollView.fullScroll(View.FOCUS_RIGHT)
+        }
+    }
+
 
     private fun fetchHistory() {
         CoroutineScope(Dispatchers.Main).launch {
@@ -229,6 +246,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             expressionTextView.text=expressionTextView.text.toString()+number
         }
+        scrollExpressionViewToRight()
     }
 
     private fun addOperand(operand: String) {
@@ -250,6 +268,7 @@ class MainActivity : AppCompatActivity() {
             }
         } else if (operand=="-")
             expressionTextView.text="-"
+        scrollExpressionViewToRight()
     }
 
     private fun addParenthesis() {
@@ -289,11 +308,12 @@ class MainActivity : AppCompatActivity() {
                 isDecimal=false
                 parenthesisCount++
             } else {
-                expressionTextView.text=expressionTextView.text.toString()+"x("
+                expressionTextView.text=expressionTextView.text.toString()+"*("
                 isDecimal=false
                 parenthesisCount++
             }
         }
+        scrollExpressionViewToRight()
     }
 
     private fun addDecimal() {
@@ -309,6 +329,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         isDecimal=true
+        scrollExpressionViewToRight()
     }
 
     private fun solve(input: String) {
@@ -322,6 +343,13 @@ class MainActivity : AppCompatActivity() {
             res=Expression(temp).setPrecision(12).eval(true)
             isSolve=true
             resultText=res!!.toPlainString()//.setScale(8,BigDecimal.ROUND_HALF_UP).toPlainString()
+            if (resultText.length>=15) {
+                val format = DecimalFormat("0.0E0").apply {
+                    roundingMode=RoundingMode.DOWN
+                    minimumFractionDigits = 5
+                }
+                resultText=format.format(res)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             resultTextView.text="Invalid"

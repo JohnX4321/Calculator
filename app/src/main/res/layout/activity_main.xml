@@ -12,18 +12,31 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <TextView
-            android:id="@+id/placeholder"
+
+        <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="end"
-            android:text=""
-            android:layout_marginTop="20sp"
-            android:paddingEnd="10sp"
-            android:overScrollMode="ifContentScrolls"
-            android:textSize="35sp"
-            android:singleLine="true"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:fillViewport="true"
+            android:scrollbars="none"
+            android:layout_margin="10dp"
+            android:id="@+id/scrollView">
+
+            <TextView
+                android:id="@+id/placeholder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text=""
+                android:layout_marginTop="20sp"
+                android:paddingEnd="10sp"
+                android:scrollHorizontally="true"
+                android:ellipsize="end"
+                android:textSize="35sp"
+                android:singleLine="true"/>
+
+        </HorizontalScrollView>
 
         <TextView
             android:id="@+id/answer"
@@ -65,17 +78,15 @@
             android:layout_weight="1"
             android:orientation="horizontal">
 
-            <androidx.appcompat.widget.AppCompatImageButton
+            <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:id="@+id/backSpace"
-                android:src="@drawable/ic_backspace"
-                android:background="@android:color/transparent"/>
-
+                android:text="CE" />
 
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
-                android:text="CE"
+                android:text="C"
                 android:id="@+id/btnClear" />
 
             <androidx.appcompat.widget.AppCompatButton
@@ -100,7 +111,8 @@
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="7"
-                android:id="@+id/btnSeven" />
+                android:id="@+id/btnSeven"
+                android:elevation="5dp"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"

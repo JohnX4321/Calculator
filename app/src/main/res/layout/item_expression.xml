@@ -12,6 +12,8 @@
         android:textSize="18sp"
         android:id="@+id/txtExpr"
         android:gravity="center_horizontal"
+        android:singleLine="false"
+        android:minLines="1"
         android:layout_gravity="center_horizontal"/>
 
     <TextView
