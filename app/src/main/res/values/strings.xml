@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Calculator</string>
+    <string name="string_normal">%s%s</string>
+    <string name="string_par_mult">%s*%s</string>
+    <string name="string_par_open">%s(</string>
+    <string name="string_par_close">%s)</string>
+    <string name="string_par_mult_open">%s*(</string>
+    <string name="zero_dot">%s0.</string>
+    <string name="dot">%s.</string>
+    <string name="invalid">Invalid</string>
 </resources>

@@ -5,7 +5,7 @@ import androidx.room.*
 @Dao
 interface RecordDao {
 
-    @Query("SELECT * FROM records ORDER BY id DESC")
+    @Query("SELECT * FROM records ORDER BY id ASC")
     suspend fun getAll(): List<Record>
 
     @Insert

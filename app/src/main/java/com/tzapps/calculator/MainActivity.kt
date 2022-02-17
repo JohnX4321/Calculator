@@ -3,10 +3,8 @@ package com.tzapps.calculator
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.HorizontalScrollView
-import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
@@ -20,7 +18,9 @@ import com.tzapps.calculator.db.Record
 import com.tzapps.calculator.db.RecordDao
 import com.tzapps.calculator.db.RecordsDatabase
 import com.udojava.evalex.Expression
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -28,17 +28,19 @@ import java.text.DecimalFormat
 //TODO custom parser
 class MainActivity : AppCompatActivity() {
 
-    private var parenthesisCount=0;
+    companion object {
+        private const val IS_EXCEPTION=-1
+        private const val IS_NUMBER=0
+        private const val IS_OPERAND=1
+        private const val IS_PAR_OPEN=2
+        private const val IS_PAR_CLOSE=3
+        private const val IS_DOT=4
+    }
+
+    private var parenthesisCount=0
     private var isDecimal=false
     private var isSolve=false
     private var endExpression = ""
-
-    private val IS_EXCEPTION=-1
-    private val IS_NUMBER=0
-    private val IS_OPERAND=1
-    private val IS_PAR_OPEN=2
-    private val IS_PAR_CLOSE=3
-    private val IS_DOT=4
 
     private lateinit var btnOne: AppCompatButton
     private lateinit var btnTwo: AppCompatButton
@@ -254,7 +256,7 @@ class MainActivity : AppCompatActivity() {
         if (operationLength>0){
             val lastInp=expressionTextView.text[operationLength-1].toString()
             if (lastInp=="+"||lastInp=="-"||lastInp=="*"||lastInp=="/"||lastInp=="%")
-                resultTextView.text="Invalid"
+                resultTextView.text = getString(R.string.invalid)
             else if (operand=="%"&&lastCharacter(lastInp)==IS_NUMBER) {
                 expressionTextView.text = expressionTextView.text.toString()+operand
                 isDecimal=false
@@ -333,8 +335,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun solve(input: String) {
-        var resultText=""
-        var res: BigDecimal? = null
+        var resultText: String
+        val res: BigDecimal?
         try {
             var temp=input
             if (isSolve)
@@ -352,7 +354,7 @@ class MainActivity : AppCompatActivity() {
             }
         } catch (e: Exception) {
             e.printStackTrace()
-            resultTextView.text="Invalid"
+            resultTextView.text=getString(R.string.invalid)
             return
         }
         if (resultText==".") {
