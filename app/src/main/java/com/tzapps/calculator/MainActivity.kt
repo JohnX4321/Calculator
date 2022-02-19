@@ -104,6 +104,11 @@ class MainActivity : AppCompatActivity() {
         scrollView=findViewById(R.id.scrollView)
         addNumber("0")
 
+        if (savedInstanceState!=null) {
+            expressionTextView.text=savedInstanceState.getString("expression","0")
+            resultTextView.text=savedInstanceState.getString("result","")
+        }
+
         btnZero.setOnClickListener {
             addNumber("0")
         }
@@ -419,5 +424,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("expression",expressionTextView.text.toString())
+        outState.putString("result",resultTextView.text.toString())
+    }
+
+
 
 }

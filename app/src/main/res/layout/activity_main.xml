@@ -206,7 +206,7 @@
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="."
-                android:textSize="50sp"
+                android:textStyle="bold"
                 android:id="@+id/btnDot" />
 
             <androidx.appcompat.widget.AppCompatButton
