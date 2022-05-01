@@ -56,12 +56,31 @@
         android:orientation="horizontal">
 
         <androidx.appcompat.widget.AppCompatImageButton
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:id="@+id/history"
             android:src="@drawable/ic_history"
-            android:background="@android:color/transparent"/>
+            android:background="@android:color/transparent"
+            android:contentDescription="history"/>
 
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:layout_marginLeft="15dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/converterBtn"
+            android:src="@drawable/ic_baseline_line_weight_24"
+            android:background="@android:color/transparent"
+            android:contentDescription="converter"/>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:layout_marginLeft="15dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/infoBtn"
+            android:src="@drawable/ic_baseline_info_24"
+            android:background="@android:color/transparent"
+            android:contentDescription="converter"/>
 
 
 
@@ -81,23 +100,27 @@
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:id="@+id/backSpace"
-                android:text="CE" />
+                android:text="CE"
+                android:contentDescription="Backspace"/>
 
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="C"
-                android:id="@+id/btnClear" />
+                android:id="@+id/btnClear"
+                android:contentDescription="Clear"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="()"
-                android:id="@+id/btnParenthesis" />
+                android:id="@+id/btnParenthesis"
+                android:contentDescription="Parenthesis"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="Mod"
-                android:id="@+id/btnModulus" />
+                android:id="@+id/btnModulus"
+                android:contentDescription="Modulus"/>
 
 
         </LinearLayout>
@@ -112,22 +135,26 @@
                 style="@style/ButtonStyle"
                 android:text="7"
                 android:id="@+id/btnSeven"
-                android:elevation="5dp"/>
+                android:elevation="5dp"
+                android:contentDescription="Seven"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="8"
-                android:id="@+id/btnEight" />
+                android:id="@+id/btnEight"
+                android:contentDescription="Eight"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="9"
-                android:id="@+id/btnNine" />
+                android:id="@+id/btnNine"
+                android:contentDescription="Nine"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="*"
-                android:id="@+id/btnMultiply" />
+                android:id="@+id/btnMultiply"
+                android:contentDescription="Multiply"/>
 
 
         </LinearLayout>
@@ -141,22 +168,26 @@
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="4"
-                android:id="@+id/btnFour" />
+                android:id="@+id/btnFour"
+                android:contentDescription="Four"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="5"
-                android:id="@+id/btnFive" />
+                android:id="@+id/btnFive"
+                android:contentDescription="Five"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="6"
-                android:id="@+id/btnSix" />
+                android:id="@+id/btnSix"
+                android:contentDescription="Six"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="/"
-                android:id="@+id/btnDivide" />
+                android:id="@+id/btnDivide"
+                android:contentDescription="Divide"/>
 
 
         </LinearLayout>
@@ -171,22 +202,26 @@
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="1"
-                android:id="@+id/btnOne" />
+                android:id="@+id/btnOne"
+                android:contentDescription="One"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="2"
-                android:id="@+id/btnTwo" />
+                android:id="@+id/btnTwo"
+                android:contentDescription="Two"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="3"
-                android:id="@+id/btnThree" />
+                android:id="@+id/btnThree"
+                android:contentDescription="Three"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="-"
-                android:id="@+id/btnSubtract" />
+                android:id="@+id/btnSubtract"
+                android:contentDescription="Minue"/>
 
 
         </LinearLayout>
@@ -201,23 +236,27 @@
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="0"
-                android:id="@+id/btnZero" />
+                android:id="@+id/btnZero"
+                android:contentDescription="Zero"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="."
                 android:textStyle="bold"
-                android:id="@+id/btnDot" />
+                android:id="@+id/btnDot"
+                android:contentDescription="Decimal"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="+"
-                android:id="@+id/btnAddition" />
+                android:id="@+id/btnAddition"
+                android:contentDescription="Plus"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 style="@style/ButtonStyle"
                 android:text="="
-                android:id="@+id/btnEquals" />
+                android:id="@+id/btnEquals"
+                android:contentDescription="Equals"/>
 
 
 

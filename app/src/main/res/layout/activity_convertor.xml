@@ -2,34 +2,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
-    android:weightSum="5">
+    android:weightSum="2">
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        tools:listitem="@android:layout/simple_list_item_1"
         android:id="@+id/categoryRecyclerView"
         android:clipToPadding="false"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:id="@+id/subcategoryRecyclerView"
-        android:clipToPadding="false"/>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:id="@+id/subcategoryRecyclerView2"
-        android:clipToPadding="false"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_weight="2"
+        android:layout_weight="1"
         android:orientation="vertical"
         android:gravity="center_horizontal|center_vertical">
 
@@ -40,19 +29,33 @@
             android:id="@+id/fromId"
             android:text="From" />
 
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
+            android:layout_marginBottom="25dp"
+            android:id="@+id/fromConvertSpinner"
+             />
+
+
         <EditText
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
             android:textSize="22sp"
+            android:hint="Enter Value"
+            android:gravity="center"
             android:id="@+id/fromInput"
-            android:text="..." />
+            />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:id="@+id/switchConversion"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_baseline_rotate_right_24" />
+            android:src="@drawable/ic_baseline_arrow_circle_down_24" />
 
 
         <TextView
@@ -62,12 +65,21 @@
             android:id="@+id/toId"
             android:text="To" />
 
-        <EditText
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="50dp"
+            android:layout_marginBottom="25dp"
+            android:id="@+id/toConvertSpinner"
+            />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="22sp"
             android:id="@+id/toInput"
-            android:text="..." />
+             />
 
 
         <androidx.appcompat.widget.AppCompatButton

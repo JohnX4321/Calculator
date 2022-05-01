@@ -1,8 +1,13 @@
 package com.tzapps.calculator
 
+import android.bluetooth.BluetoothHidDeviceAppSdpSettings
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.SpannableString
+import android.text.style.RelativeSizeSpan
+import android.util.Log
 import android.view.View
 import android.widget.HorizontalScrollView
 import android.widget.TextView
@@ -14,6 +19,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.tzapps.calculator.databinding.ActivityConvertorBinding
+import com.tzapps.calculator.databinding.ActivityMainBinding
 import com.tzapps.calculator.db.Record
 import com.tzapps.calculator.db.RecordDao
 import com.tzapps.calculator.db.RecordsDatabase
@@ -41,6 +48,7 @@ class MainActivity : AppCompatActivity() {
     private var isDecimal=false
     private var isSolve=false
     private var endExpression = ""
+    private lateinit var binding: ActivityMainBinding
 
     private lateinit var btnOne: AppCompatButton
     private lateinit var btnTwo: AppCompatButton
@@ -65,6 +73,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var solveBtn: AppCompatButton
     private lateinit var moreBtn: AppCompatImageButton
     private lateinit var scrollView: HorizontalScrollView
+    private lateinit var converterBtn: AppCompatImageButton
+    private lateinit var infoBtn: AppCompatImageButton
 
     private lateinit var expressionTextView: TextView
     private lateinit var resultTextView: TextView
@@ -77,31 +87,34 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        expressionTextView=findViewById(R.id.placeholder)
-        resultTextView=findViewById(R.id.answer)
-        btnOne=findViewById(R.id.btnOne)
-        btnTwo=findViewById(R.id.btnTwo)
-        btnThree=findViewById(R.id.btnThree)
-        btnFour=findViewById(R.id.btnFour)
-        btnFive=findViewById(R.id.btnFive)
-        btnSix=findViewById(R.id.btnSix)
-        btnSeven=findViewById(R.id.btnSeven)
-        btnEight=findViewById(R.id.btnEight)
-        btnNine=findViewById(R.id.btnNine)
-        btnZero=findViewById(R.id.btnZero)
-        clearBtn=findViewById(R.id.btnClear)
-        pcBtn=findViewById(R.id.btnModulus)
-        parenthesisBtn=findViewById(R.id.btnParenthesis)
-        multiplyBtn=findViewById(R.id.btnMultiply)
-        divideBtn=findViewById(R.id.btnDivide)
-        addBtn=findViewById(R.id.btnAddition)
-        minusBtn=findViewById(R.id.btnSubtract)
-        dotBtn=findViewById(R.id.btnDot)
-        solveBtn=findViewById(R.id.btnEquals)
-        historyBtn=findViewById(R.id.history)
-        backspaceBtn=findViewById(R.id.backSpace)
-        scrollView=findViewById(R.id.scrollView)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        expressionTextView=binding.placeholder
+        resultTextView=binding.answer
+        btnOne=binding.btnOne
+        btnTwo=binding.btnTwo
+        btnThree=binding.btnThree
+        btnFour=binding.btnFour
+        btnFive=binding.btnFive
+        btnSix=binding.btnSix
+        btnSeven=binding.btnSeven
+        btnEight=binding.btnEight
+        btnNine=binding.btnNine
+        btnZero=binding.btnZero
+        clearBtn=binding.btnClear
+        pcBtn=binding.btnModulus
+        parenthesisBtn=binding.btnParenthesis
+        multiplyBtn=binding.btnMultiply
+        divideBtn=binding.btnDivide
+        addBtn=binding.btnAddition
+        minusBtn=binding.btnSubtract
+        dotBtn=binding.btnDot
+        solveBtn=binding.btnEquals
+        historyBtn=binding.history
+        backspaceBtn=binding.backSpace
+        scrollView=binding.scrollView
+        converterBtn = binding.converterBtn
+        infoBtn = binding.infoBtn
         addNumber("0")
 
         if (savedInstanceState!=null) {
@@ -163,7 +176,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         historyBtn.setOnClickListener {
-            val historyDialog = BottomSheetDialog(this,BottomSheetBehavior.PEEK_HEIGHT_AUTO).apply {
+            val historyDialog = BottomSheetDialog(this,BottomSheetBehavior.STATE_HALF_EXPANDED).apply {
                 fetchHistory()
                 setContentView(R.layout.dialog_history)
                 val recyclerView: RecyclerView = findViewById(R.id.historyRV)!!
@@ -180,12 +193,30 @@ class MainActivity : AppCompatActivity() {
                     if (::adapter.isInitialized)
                         adapter.recordsList=recordsList
                     CoroutineScope(Dispatchers.IO).launch {
-                        recordsDB.deleteAll()
+                        try {
+                            recordsDB.deleteAll()
+                        } catch (e: Exception) {
+                            Log.e("Calculator",e.message.toString())
+                        }
                     }
                     adapter.notifyDataSetChanged()
                 }
             }
             historyDialog.show()
+        }
+
+        converterBtn.setOnClickListener {
+            startActivity(Intent(this,ConvertorActivity::class.java))
+        }
+
+        infoBtn.setOnClickListener {
+            val b = BottomSheetDialog(this,R.style.CustomBottomSheetDialogTheme)
+            b.setContentView(R.layout.layout_bottomsheet)
+            val s = getString(R.string.about_text)
+            val ss = SpannableString(s)
+            ss.setSpan(RelativeSizeSpan(2.5f),0,4,0)
+            b.findViewById<TextView>(R.id.textView)?.text = ss
+            b.show()
         }
 
         backspaceBtn.setOnClickListener {
@@ -197,7 +228,11 @@ class MainActivity : AppCompatActivity() {
             expressionTextView.text=expressionTextView.text.toString().substring(0,expressionTextView.text.lastIndex)
         }
 
-        recordsDB= RecordsDatabase(this).recordsDao()
+        try {
+            recordsDB = RecordsDatabase(this).recordsDao()
+        } catch (e: Exception) {
+
+        }
         fetchHistory()
 
         clearBtn.setOnClickListener {
@@ -228,7 +263,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun fetchHistory() {
         CoroutineScope(Dispatchers.Main).launch {
-            recordsList = recordsDB.getAll()
+            recordsList = try {
+                recordsDB.getAll()
+            } catch (e: Exception) {
+                emptyList()
+            }
             if (::adapter.isInitialized) {
                 adapter.recordsList = recordsList
                 adapter.notifyDataSetChanged()
@@ -358,7 +397,7 @@ class MainActivity : AppCompatActivity() {
                 resultText=format.format(res)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("Calculator",e.message.toString())
             resultTextView.text=getString(R.string.invalid)
             return
         }
@@ -367,11 +406,20 @@ class MainActivity : AppCompatActivity() {
         }
         resultTextView.text=resultText
         CoroutineScope(Dispatchers.IO).launch {
-            if (recordsDB.countAll()==20) {
-                val tmpR = recordsDB.getAll()[0]
-                recordsDB.delete(tmpR)
+            try {
+                if (recordsDB.countAll() == 20) {
+                    val tmpR = recordsDB.getAll()[0]
+                    recordsDB.delete(tmpR)
+                }
+                recordsDB.insert(
+                    Record(
+                        exprName = expressionTextView.text.toString(),
+                        exp = resultText
+                    )
+                )
+            } catch (e: Exception) {
+                Log.e("Calculator",e.message.toString())
             }
-            recordsDB.insert(Record(exprName = expressionTextView.text.toString(),exp = resultText))
         }
         lastExpCache = input
 

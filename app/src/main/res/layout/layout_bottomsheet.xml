@@ -1,20 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="100dp"
+    android:layout_height="wrap_content"
     android:layout_gravity="bottom"
-    android:background="@android:color/transparent"
-    app:cardBackgroundColor="@android:color/holo_blue_light"
-    app:cardCornerRadius="20dp"
-    android:layout_marginBottom="-20dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <androidx.appcompat.widget.AppCompatButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/aboutLibs"
-        android:textSize="25sp"
-        android:text="About Libs" />
-
-</androidx.cardview.widget.CardView>
+    android:padding="25dp"
+    android:textSize="22sp"
+    android:background="?attr/colorOnPrimary"
+    android:id="@+id/textView" />

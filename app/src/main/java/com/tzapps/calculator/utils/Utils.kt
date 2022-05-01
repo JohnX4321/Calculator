@@ -31,9 +31,11 @@ object Utils {
 
     fun dpToPx(context: Context, value: Int) = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,value.toFloat(),context.resources.displayMetrics).toInt()
 
-    val CATEGORIES = listOf<String>("Area","Length","Temperature","Volume","Mass","Speed","Time")
-    val SUBCATEGORIES = listOf(listOf("ac","a","ha","cm^2","ft^2","in^2","m^2"),
-        listOf("m","mm","cm","km","in","ft","yd","mi","NM"), listOf("F","C","K"), listOf("gal(US)","l","ml","cc","m^3","in^3","ft^3"),
-    listOf("kg","t","lb","oz","kg","g"))
+    val CATEGORIES = listOf("Length","Area","Temperature","Volume","Mass")//,"Speed","Time")
+    val AREA_CATEGORY = listOf("ac","ha","cm^2","ft^2","in^2","m^2")
+    val LENGTH_CATEGORY = listOf("m","mm","cm","km","in","ft","yd","mi","NM")
+    val TEMP_CATEGORY = listOf("F","C","K")
+    val VOLUME_CATEGORY = listOf("gal(US)","gal(UK)","l","ml")
+    val WEIGHT_CATEGORY = listOf("kg","g","t","lb","oz")
 
 }
