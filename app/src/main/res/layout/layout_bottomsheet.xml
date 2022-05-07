@@ -5,6 +5,6 @@
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
     android:padding="25dp"
-    android:textSize="22sp"
+    android:textSize="18sp"
     android:background="?attr/colorOnPrimary"
     android:id="@+id/textView" />

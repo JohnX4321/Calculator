@@ -95,6 +95,12 @@ class ConvertorActivity: AppCompatActivity(),ConverterAdapter.RecyclerItemClickL
                 Log.e("Calculator","Conversion Error: ${e.localizedMessage}")
             }
         }
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            try {
+                binding.categoryRecyclerView.findViewHolderForAdapterPosition(0)?.itemView?.findViewById<TextView>(android.R.id.text1)?.performClick()
+            } catch (e: Exception) {}
+        },300)
     }
 
     private fun convertArea(a: BigDecimal) {

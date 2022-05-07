@@ -26,6 +26,8 @@ class ConverterAdapter(private val listener: RecyclerItemClickListener): Recycle
         init {
             textView.setOnClickListener {
                 val a = adapterPosition
+                if (lastSelectedIndex==a)
+                    return@setOnClickListener
                 listener.onRecyclerItemClick(a)
                 textView.text = textView.text.toString()+"  \u2713"
                 if (lastSelectedIndex!=-1)
@@ -41,9 +43,6 @@ class ConverterAdapter(private val listener: RecyclerItemClickListener): Recycle
 
     override fun onBindViewHolder(holder: TextViewHolder, position: Int) {
         holder.textView.text = dataList[position]
-        if (position==0&&lastSelectedIndex==-1) {
-            holder.textView.performClick()
-        }
     }
 
     override fun getItemCount(): Int {
