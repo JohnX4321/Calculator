@@ -72,7 +72,14 @@ class ConvertorActivity: AppCompatActivity(),ConverterAdapter.RecyclerItemClickL
         }
         binding.convertButton.setOnClickListener {
             try {
-                val f = binding.fromInput.text.toString()
+                if (binding.fromInput.text.isNullOrEmpty())
+                    return@setOnClickListener
+                val f: String
+                try {
+                    f = binding.fromInput.text.toString()
+                } catch (ex: Exception) {
+                    return@setOnClickListener
+                }
 
                 when (type) {
                     0 -> {

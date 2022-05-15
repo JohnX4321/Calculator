@@ -8,5 +8,5 @@
     <string name="zero_dot">%s0.</string>
     <string name="dot">%s.</string>
     <string name="invalid">Invalid</string>
-    <string name="about_text">Note \n The mathematical calculation library used in this application is EvalEx library. \n The converter feature approximates to the nearest values and may not be accurate to the last decimal. \n The formula for calculation is based on the conversions available on the Internet.</string>
+    <string name="about_text">Note \n The mathematical calculation library used in this application is EvalEx library. \n The formula for calculation is based on the conversions available on the Internet.</string>
 </resources>

@@ -80,7 +80,7 @@
             android:id="@+id/infoBtn"
             android:src="@drawable/ic_baseline_info_24"
             android:background="@android:color/transparent"
-            android:contentDescription="converter"/>
+            android:contentDescription="Information"/>
 
 
 

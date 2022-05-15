@@ -47,10 +47,11 @@
             android:textSize="22sp"
             android:hint="Enter Value"
             android:gravity="center"
+            android:inputType="numberDecimal"
             android:id="@+id/fromInput"
             />
 
-        <androidx.appcompat.widget.AppCompatImageButton
+        <ImageView
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:id="@+id/switchConversion"
