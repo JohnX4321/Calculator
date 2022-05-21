@@ -1,5 +1,7 @@
 package com.tzapps.calculator
 
+import android.content.res.Configuration
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -10,6 +12,7 @@ import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatButton
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.lifecycle.lifecycleScope
@@ -70,6 +73,14 @@ class ConvertorActivity: AppCompatActivity(),ConverterAdapter.RecyclerItemClickL
 
             }
         }
+        /*try {
+            when(resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) {
+                Configuration.UI_MODE_NIGHT_YES-> binding.fromInput.setHintTextColor(Color.WHITE)
+                else -> binding.fromInput.setHintTextColor(Color.BLACK)
+            }
+        } catch (e: Exception) {
+
+        }*/
         binding.convertButton.setOnClickListener {
             try {
                 if (binding.fromInput.text.isNullOrEmpty())
@@ -99,7 +110,7 @@ class ConvertorActivity: AppCompatActivity(),ConverterAdapter.RecyclerItemClickL
                     }
                 }
             } catch (e: Exception) {
-                Log.e("Calculator","Conversion Error: ${e.localizedMessage}")
+                Log.e("Calculator","Conversion Error: ${e.message.toString()}")
             }
         }
 
