@@ -83,6 +83,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: HistoryAdapter
 
     private var lastExpCache = ""
+    private var lastSolCache=""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -244,8 +245,10 @@ class MainActivity : AppCompatActivity() {
         }
         solveBtn.setOnClickListener {
             val expLocal = expressionTextView.text.toString()
-            if (expLocal==lastExpCache)
+            if (expLocal==lastExpCache) {
+                resultTextView.text=lastSolCache
                 return@setOnClickListener
+            }
             if (expLocal.isNotEmpty()) {
                 solve(expressionTextView.text.toString())
                 fetchHistory()
@@ -422,6 +425,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         lastExpCache = input
+        lastSolCache=resultText
 
     }
 
