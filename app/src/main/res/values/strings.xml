@@ -1,12 +1,22 @@
 <resources>
     <string name="app_name">Calculator</string>
-    <string name="string_normal">%s%s</string>
-    <string name="string_par_mult">%s*%s</string>
-    <string name="string_par_open">%s(</string>
-    <string name="string_par_close">%s)</string>
-    <string name="string_par_mult_open">%s*(</string>
-    <string name="zero_dot">%s0.</string>
-    <string name="dot">%s.</string>
+    <string name="string_normal" translatable="false">%s%s</string>
+    <string name="string_par_mult" translatable="false">%s*%s</string>
+    <string name="string_par_open" translatable="false">%s(</string>
+    <string name="string_par_close" translatable="false">%s)</string>
+    <string name="string_par_mult_open" translatable="false">%s*(</string>
+    <string name="zero_dot" translatable="false">%s0.</string>
+    <string name="dot" translatable="false">%s.</string>
     <string name="invalid">Invalid</string>
-    <string name="about_text">Note \n The mathematical calculation library used in this application is EvalEx library. \n The formula for conversion is based on the numerics available on the Internet.</string>
+    <string name="about_text">Note \n The mathematical calculation library used in this application is EvalEx library. \n The formula for conversion is based on the numerics available on the Internet. \n The usage of %(Percentage) may increase the calculation time due to the complexity involved</string>
+    <string name="one">1</string>
+    <string name="two">2</string>
+    <string name="three">3</string>
+    <string name="four">4</string>
+    <string name="five">5</string>
+    <string name="six">6</string>
+    <string name="seven">7</string>
+    <string name="eight">8</string>
+    <string name="nine">9</string>
+    <string name="zero">0</string>
 </resources>

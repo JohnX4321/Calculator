@@ -24,10 +24,12 @@ import com.tzapps.calculator.databinding.ActivityMainBinding
 import com.tzapps.calculator.db.Record
 import com.tzapps.calculator.db.RecordDao
 import com.tzapps.calculator.db.RecordsDatabase
+import com.udojava.evalex.AbstractOperator
 import com.udojava.evalex.Expression
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.StringBuilder
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -63,7 +65,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var backspaceBtn: AppCompatButton
     private lateinit var historyBtn: AppCompatImageButton
     private lateinit var clearBtn: AppCompatButton
-    private lateinit var pcBtn: AppCompatButton
+    private lateinit var modBtn: AppCompatButton
     private lateinit var parenthesisBtn: AppCompatButton
     private lateinit var multiplyBtn: AppCompatButton
     private lateinit var divideBtn: AppCompatButton
@@ -71,10 +73,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var minusBtn: AppCompatButton
     private lateinit var dotBtn: AppCompatButton
     private lateinit var solveBtn: AppCompatButton
-    private lateinit var moreBtn: AppCompatImageButton
     private lateinit var scrollView: HorizontalScrollView
     private lateinit var converterBtn: AppCompatImageButton
     private lateinit var infoBtn: AppCompatImageButton
+    private lateinit var pcBtn: AppCompatButton
 
     private lateinit var expressionTextView: TextView
     private lateinit var resultTextView: TextView
@@ -103,7 +105,7 @@ class MainActivity : AppCompatActivity() {
         btnNine=binding.btnNine
         btnZero=binding.btnZero
         clearBtn=binding.btnClear
-        pcBtn=binding.btnModulus
+        modBtn=binding.btnModulus
         parenthesisBtn=binding.btnParenthesis
         multiplyBtn=binding.btnMultiply
         divideBtn=binding.btnDivide
@@ -116,6 +118,7 @@ class MainActivity : AppCompatActivity() {
         scrollView=binding.scrollView
         converterBtn = binding.converterBtn
         infoBtn = binding.infoBtn
+        pcBtn=binding.btnPc
         addNumber("0")
 
         if (savedInstanceState!=null) {
@@ -165,6 +168,9 @@ class MainActivity : AppCompatActivity() {
         }
         divideBtn.setOnClickListener {
             addOperand("/")
+        }
+        modBtn.setOnClickListener {
+            addOperand("M")
         }
         pcBtn.setOnClickListener {
             addOperand("%")
@@ -250,7 +256,9 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             if (expLocal.isNotEmpty()) {
-                solve(expressionTextView.text.toString())
+                CoroutineScope(Dispatchers.IO).launch {
+                    solve(expressionTextView.text.toString())
+                }
                 fetchHistory()
             }
         }
@@ -289,7 +297,9 @@ class MainActivity : AppCompatActivity() {
                 expressionTextView.text=expressionTextView.text.toString()+number
             } else if (lastCharState==IS_PAR_CLOSE){
                 expressionTextView.text=expressionTextView.text.toString()+"*"+number
-            } else if (lastCharState==IS_NUMBER||lastCharState==IS_OPERAND||lastCharState==IS_DOT){
+            } else if (lastChar=="%"){
+                expressionTextView.text=expressionTextView.text.toString()+"*"+number
+            }else if (lastCharState==IS_NUMBER||lastCharState==IS_OPERAND||lastCharState==IS_DOT){
                 expressionTextView.text=expressionTextView.text.toString()+number
             }
         } else {
@@ -302,19 +312,15 @@ class MainActivity : AppCompatActivity() {
        var operationLength = expressionTextView.text.length
         if (operationLength>0){
             val lastInp=expressionTextView.text[operationLength-1].toString()
-            if (lastInp=="+"||lastInp=="-"||lastInp=="*"||lastInp=="/"||lastInp=="%")
+            if (lastInp=="+"||lastInp=="-"||lastInp=="*"||lastInp=="/"||(lastInp=="%"&&operand=="M")||lastInp=="M")
                 resultTextView.text = getString(R.string.invalid)
-            else if (operand=="%"&&lastCharacter(lastInp)==IS_NUMBER) {
+            else if ((operand=="M"&&lastCharacter(lastInp)==IS_NUMBER)||(operand!="M")){
                 expressionTextView.text = expressionTextView.text.toString()+operand
                 isDecimal=false
                 isSolve=false
                 endExpression=""
-            } else if (operand!="%") {
-                expressionTextView.text=expressionTextView.text.toString()+operand
-                isDecimal=false
-                isSolve=false
-                endExpression=""
             }
+
         } else if (operand=="-")
             expressionTextView.text="-"
         scrollExpressionViewToRight()
@@ -381,7 +387,7 @@ class MainActivity : AppCompatActivity() {
         scrollExpressionViewToRight()
     }
 
-    private fun solve(input: String) {
+    private suspend fun solve(input: String) {
         var resultText: String
         val res: BigDecimal?
         try {
@@ -389,7 +395,105 @@ class MainActivity : AppCompatActivity() {
             if (isSolve)
                 temp=input+endExpression
             else saveLastExpression(input)
-            res=Expression(temp).setPrecision(12).eval(true)
+            var i = temp.lastIndex
+            val sb=StringBuilder(temp)
+            var innerPC=false
+            var isModPresent=false
+            while (i>0) {
+                if (i!=0) {
+                    if (sb[i]=='%') {
+                        if (sb[i-1]==')') {
+                            var j=i-1
+                            while(sb[j]!='(') {
+                                if (sb[j]=='%')
+                                    innerPC=true
+                                j-=1
+                            }
+                            if (sb[j-1]=='*'||(i<temp.lastIndex-1&&(sb[i+1]=='*'))) {
+                                sb.insert(i+1, "/100")
+                                sb.deleteCharAt(i)
+                            } else if(sb[j-1]=='/'||(i<temp.lastIndex-1&&sb[i+1]=='/')) {
+                                sb.insert(j,'(')
+                                sb.insert(i+1,"/100)")
+                                sb.deleteCharAt(i)
+                            } else if (sb[j-1]=='+') {
+                                sb.deleteCharAt(i)
+                                sb.setCharAt(j-1,'<')
+                            } else if (sb[j-1]=='-') {
+                                sb.deleteCharAt(i)
+                                sb.setCharAt(j-1,'>')
+                            } else if (sb[j-1]=='M') {
+                                resultTextView.text="Invalid"
+                                return
+                            }
+                            i = if (innerPC)
+                                i-2
+                            else
+                                j-2
+                            innerPC=false
+                        } else {
+                            var j=i-1
+                            while((sb[j] in '0'..'9')||sb[j]=='.') {
+                                j-=1
+                                if (j<0)
+                                    break
+                            }
+                            if (j>0) {
+                                if (sb[j]=='*'||(i<temp.lastIndex-1&&(sb[i+1]=='*'))) {
+                                    sb.insert(i+1, "/100")
+                                    sb.deleteCharAt(i)
+                                } else if(sb[j]=='/'||(i<temp.lastIndex-1&&sb[i+1]=='/')) {
+                                    sb.deleteCharAt(i)
+                                    sb.insert(j+1,'(')
+                                    sb.insert(i+1,"/100)")
+                                } else if (sb[j] == '+') {
+                                    sb.deleteCharAt(i)
+                                    sb.setCharAt(j, '<')
+                                } else if (sb[j] == '-') {
+                                    sb.deleteCharAt(i)
+                                    sb.setCharAt(j, '>')
+                                } else if (sb[j] == 'M') {
+                                    resultTextView.text = "Invalid"
+                                    return
+                                }
+                            } else {
+                                sb.insert(i + 1, "/100")
+                                sb.deleteCharAt(i)
+                            }
+                            i=j
+                        }
+                    } else if (sb[i]=='M') {
+                        isModPresent=true
+                        i-=1
+                    }
+                    else {
+                        i-=1
+                    }
+                }
+            }
+            temp=sb.toString()
+            if (isModPresent)
+                temp=temp.replace("M","%")
+            //Log.d("EXP",temp)
+            val e=Expression(temp).setPrecision(12)
+            e.addOperator(object : AbstractOperator("<",Expression.OPERATOR_PRECEDENCE_ADDITIVE+1,true) {
+                override fun eval(v1: BigDecimal?, v2: BigDecimal?): BigDecimal {
+                    if (v1!=null&&v2!=null) {
+                        return v1.add(v2.divide(BigDecimal(100)).multiply(v1))
+                    }
+                    return BigDecimal.ZERO
+                }
+            })
+            e.addOperator(object : AbstractOperator(">",Expression.OPERATOR_PRECEDENCE_ADDITIVE+1,true,false,false) {
+                override fun eval(v1: BigDecimal?, v2: BigDecimal?): BigDecimal {
+                    if (v1!=null&&v2!=null) {
+                        return v1.subtract(v2.divide(BigDecimal(100)).multiply(v1))
+                    }
+                    return BigDecimal.ZERO
+                }
+            })
+            res=e.eval(true)
+            //Log.d("EXP","$temp:$res")
             isSolve=true
             resultText=res!!.toPlainString()//.setScale(8,BigDecimal.ROUND_HALF_UP).toPlainString()
             if (resultText.length>=15) {
@@ -401,14 +505,17 @@ class MainActivity : AppCompatActivity() {
             }
         } catch (e: Exception) {
             Log.e("Calculator",e.message.toString())
-            resultTextView.text=getString(R.string.invalid)
+            runOnUiThread {
+                resultTextView.text = getString(R.string.invalid)
+            }
             return
         }
         if (resultText==".") {
             resultText=resultText.replace("\\.?0*$","")
         }
-        resultTextView.text=resultText
-        CoroutineScope(Dispatchers.IO).launch {
+        runOnUiThread {
+            resultTextView.text = resultText
+        }
             try {
                 if (recordsDB.countAll() == 20) {
                     val tmpR = recordsDB.getAll()[0]
@@ -423,7 +530,6 @@ class MainActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e("Calculator",e.message.toString())
             }
-        }
         lastExpCache = input
         lastSolCache=resultText
 
@@ -435,7 +541,7 @@ class MainActivity : AppCompatActivity() {
             return IS_NUMBER
         } catch (e: NumberFormatException) {}
         return when (last) {
-            "+", "-", "*", "/","%" -> IS_OPERAND
+            "+", "-", "*", "/","%","M" -> IS_OPERAND
             "(" -> IS_PAR_OPEN
             ")" -> IS_PAR_CLOSE
             "." -> IS_DOT

@@ -258,6 +258,12 @@
                 android:id="@+id/btnEquals"
                 android:contentDescription="Equals"/>
 
+            <androidx.appcompat.widget.AppCompatButton
+                style="@style/ButtonStyle"
+                android:text="%"
+                android:id="@+id/btnPc"
+                android:contentDescription="Percent"/>
+
 
 
         </LinearLayout>
