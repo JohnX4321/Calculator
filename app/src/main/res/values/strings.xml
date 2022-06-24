@@ -4,6 +4,7 @@
     <string name="string_par_mult" translatable="false">%s*%s</string>
     <string name="string_par_open" translatable="false">%s(</string>
     <string name="string_par_close" translatable="false">%s)</string>
+    <string name="string_par_add" translatable="false">%s+%s</string>
     <string name="string_par_mult_open" translatable="false">%s*(</string>
     <string name="zero_dot" translatable="false">%s0.</string>
     <string name="dot" translatable="false">%s.</string>

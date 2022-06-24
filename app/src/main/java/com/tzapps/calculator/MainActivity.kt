@@ -1,6 +1,5 @@
 package com.tzapps.calculator
 
-import android.bluetooth.BluetoothHidDeviceAppSdpSettings
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -19,7 +18,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.tzapps.calculator.databinding.ActivityConvertorBinding
 import com.tzapps.calculator.databinding.ActivityMainBinding
 import com.tzapps.calculator.db.Record
 import com.tzapps.calculator.db.RecordDao
@@ -29,7 +27,6 @@ import com.udojava.evalex.Expression
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.lang.StringBuilder
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -294,28 +291,26 @@ class MainActivity : AppCompatActivity() {
             if (operationLength==1&&lastCharState==IS_NUMBER&&lastChar=="0"){
                 expressionTextView.text = number
             } else if (lastCharState==IS_PAR_OPEN){
-                expressionTextView.text=expressionTextView.text.toString()+number
-            } else if (lastCharState==IS_PAR_CLOSE){
-                expressionTextView.text=expressionTextView.text.toString()+"*"+number
-            } else if (lastChar=="%"){
-                expressionTextView.text=expressionTextView.text.toString()+"*"+number
-            }else if (lastCharState==IS_NUMBER||lastCharState==IS_OPERAND||lastCharState==IS_DOT){
-                expressionTextView.text=expressionTextView.text.toString()+number
+                expressionTextView.text= String.format(getString(R.string.string_normal),expressionTextView.text,number)//expressionTextView.text.toString()+number
+            } else if (lastCharState==IS_PAR_CLOSE||lastChar=="%"){
+                expressionTextView.text= String.format(getString(R.string.string_par_mult),expressionTextView.text,number)//expressionTextView.text.toString()+"*"+number
+            } else if (lastCharState==IS_NUMBER||lastCharState==IS_OPERAND||lastCharState==IS_DOT){
+                expressionTextView.text= String.format(getString(R.string.string_normal),expressionTextView.text,number)//expressionTextView.text.toString()+number
             }
         } else {
-            expressionTextView.text=expressionTextView.text.toString()+number
+            expressionTextView.text= String.format(getString(R.string.string_normal),expressionTextView.text,number)//expressionTextView.text.toString()+number
         }
         scrollExpressionViewToRight()
     }
 
     private fun addOperand(operand: String) {
-       var operationLength = expressionTextView.text.length
+       val operationLength = expressionTextView.text.length
         if (operationLength>0){
             val lastInp=expressionTextView.text[operationLength-1].toString()
             if (lastInp=="+"||lastInp=="-"||lastInp=="*"||lastInp=="/"||(lastInp=="%"&&operand=="M")||lastInp=="M")
                 resultTextView.text = getString(R.string.invalid)
             else if ((operand=="M"&&lastCharacter(lastInp)==IS_NUMBER)||(operand!="M")){
-                expressionTextView.text = expressionTextView.text.toString()+operand
+                expressionTextView.text = String.format(getString(R.string.string_normal),expressionTextView.text,operand)//expressionTextView.text.toString()+operand
                 isDecimal=false
                 isSolve=false
                 endExpression=""
@@ -329,29 +324,36 @@ class MainActivity : AppCompatActivity() {
     private fun addParenthesis() {
         val operationLength=expressionTextView.text.length
         if (operationLength==0) {
-            expressionTextView.text=expressionTextView.text.toString()+"("
+            expressionTextView.text= String.format(getString(R.string.string_par_open),expressionTextView.text)//expressionTextView.text.toString()+"("
             isDecimal=false
             parenthesisCount++
         } else if (parenthesisCount>0&&operationLength>0) {
             val lastInput=expressionTextView.text[operationLength-1].toString()
             when (lastCharacter(lastInput)) {
                 IS_NUMBER->{
-                    expressionTextView.text=expressionTextView.text.toString()+")"
+                    expressionTextView.text= String.format(getString(R.string.string_par_close),expressionTextView.text)//expressionTextView.text.toString()+")"
                     parenthesisCount--
                     isDecimal=false
                 }
                 IS_OPERAND->{
-                    expressionTextView.text=expressionTextView.text.toString()+"("
+                    if (lastInput=="%") {
+                        expressionTextView.text= String.format(getString(R.string.string_par_close),expressionTextView.text)
+                    } else {
+                        expressionTextView.text = String.format(
+                            getString(R.string.string_par_open),
+                            expressionTextView.text
+                        )//expressionTextView.text.toString()+"("
+                    }
                     parenthesisCount++
                     isDecimal=false
                 }
                 IS_PAR_OPEN->{
-                    expressionTextView.text=expressionTextView.text.toString()+"("
+                    expressionTextView.text=String.format(getString(R.string.string_par_open),expressionTextView.text)//expressionTextView.text.toString()+"("
                     parenthesisCount++
                     isDecimal=false
                 }
                 IS_PAR_CLOSE->{
-                    expressionTextView.text=expressionTextView.text.toString()+")"
+                    expressionTextView.text=String.format(getString(R.string.string_par_close),expressionTextView.text)//expressionTextView.text.toString()+")"
                     parenthesisCount--
                     isDecimal=false
                 }
@@ -359,11 +361,18 @@ class MainActivity : AppCompatActivity() {
         } else if (parenthesisCount==0&&operationLength>0) {
             val lastInput=expressionTextView.text[operationLength-1].toString()
             if (lastCharacter(lastInput)==IS_OPERAND) {
-                expressionTextView.text=expressionTextView.text.toString()+"("
+                expressionTextView.text=String.format(getString(R.string.string_par_open),expressionTextView.text)//expressionTextView.text.toString()+"("
                 isDecimal=false
                 parenthesisCount++
             } else {
-                expressionTextView.text=expressionTextView.text.toString()+"*("
+                if (lastInput!="0") {
+                    expressionTextView.text = String.format(
+                        getString(R.string.string_par_mult_open),
+                        expressionTextView.text
+                    )//expressionTextView.text.toString()+"*("
+                } else {
+                    expressionTextView.text = "("
+                }
                 isDecimal=false
                 parenthesisCount++
             }
@@ -377,10 +386,10 @@ class MainActivity : AppCompatActivity() {
                 expressionTextView.text="0."
             }
             lastCharacter(expressionTextView.text[expressionTextView.text.lastIndex].toString())==IS_OPERAND -> {
-                expressionTextView.text=expressionTextView.text.toString()+"0."
+                expressionTextView.text=String.format(getString(R.string.zero_dot),expressionTextView.text)//expressionTextView.text.toString()+"0."
             }
             lastCharacter(expressionTextView.text[expressionTextView.text.lastIndex].toString())==IS_NUMBER -> {
-                expressionTextView.text=expressionTextView.text.toString()+"."
+                expressionTextView.text=String.format(getString(R.string.dot),expressionTextView.text)//expressionTextView.text.toString()+"."
             }
         }
         isDecimal=true
@@ -391,10 +400,11 @@ class MainActivity : AppCompatActivity() {
         var resultText: String
         val res: BigDecimal?
         try {
+            Log.d("DB","$input:$endExpression:$isSolve")
             var temp=input
-            if (isSolve)
-                temp=input+endExpression
-            else saveLastExpression(input)
+            //if (isSolve)
+            temp=input//+endExpression
+            //else saveLastExpression(input)
             var i = temp.lastIndex
             val sb=StringBuilder(temp)
             var innerPC=false
@@ -423,7 +433,7 @@ class MainActivity : AppCompatActivity() {
                                 sb.deleteCharAt(i)
                                 sb.setCharAt(j-1,'>')
                             } else if (sb[j-1]=='M') {
-                                resultTextView.text="Invalid"
+                                resultTextView.text=getString(R.string.invalid)
                                 return
                             }
                             i = if (innerPC)
@@ -453,7 +463,7 @@ class MainActivity : AppCompatActivity() {
                                     sb.deleteCharAt(i)
                                     sb.setCharAt(j, '>')
                                 } else if (sb[j] == 'M') {
-                                    resultTextView.text = "Invalid"
+                                    resultTextView.text = getString(R.string.invalid)
                                     return
                                 }
                             } else {
@@ -474,7 +484,7 @@ class MainActivity : AppCompatActivity() {
             temp=sb.toString()
             if (isModPresent)
                 temp=temp.replace("M","%")
-            //Log.d("EXP",temp)
+            Log.d("EXP",temp)
             val e=Expression(temp).setPrecision(12)
             e.addOperator(object : AbstractOperator("<",Expression.OPERATOR_PRECEDENCE_ADDITIVE+1,true) {
                 override fun eval(v1: BigDecimal?, v2: BigDecimal?): BigDecimal {
@@ -549,6 +559,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //Based on eloyzone_calculator
     private fun saveLastExpression(input: String){
         //TODO(Use Stack)
         val loExpr=input[input.lastIndex].toString()
