@@ -365,14 +365,14 @@ class MainActivity : AppCompatActivity() {
                 isDecimal=false
                 parenthesisCount++
             } else {
-                if (lastInput!="0") {
-                    expressionTextView.text = String.format(
+                if (operationLength==1&&lastInput=="0") {
+                    expressionTextView.text = "("
+                } else
+                expressionTextView.text = String.format(
                         getString(R.string.string_par_mult_open),
                         expressionTextView.text
                     )//expressionTextView.text.toString()+"*("
-                } else {
-                    expressionTextView.text = "("
-                }
+
                 isDecimal=false
                 parenthesisCount++
             }
