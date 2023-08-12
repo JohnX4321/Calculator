@@ -6,12 +6,12 @@ plugins {
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.thingsenz.calculator"
         minSdk 21
-        targetSdk 31
+        targetSdk 33
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
